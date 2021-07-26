@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_TrustFrameworkExtensionsWithEnzoic" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  
+  <BuildingBlocks>
+    <ClaimsSchema>      
+      <ClaimType Id="oldPassword">
+        <DisplayName>Old Password</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Enter your old password</UserHelpText>
+        <UserInputType>Password</UserInputType>
+      </ClaimType>          
+  
+      <ClaimType Id="response_format">
+        <DisplayName>Enzoic API Response Format</DisplayName>
+        <DataType>int</DataType>
+      </ClaimType>
+      
+      <ClaimType Id="compromised_message">
+        <DisplayName>Message returned by Enzoic API</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>      
+
+      <ClaimType Id="enzoicResult">
+        <DisplayName>Enzoic Credential Check Result</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>Enzoic Exposure Found</AdminHelpText>
+        <UserHelpText>Enzoic Exposure Found</UserHelpText>
+      </ClaimType>        
+
+    </ClaimsSchema>    
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+
+    <ClaimsProvider>
+      <DisplayName>Enzoic</DisplayName>
+      <TechnicalProfiles>
+
+        <!-- Custom Restful services -->
+        <TechnicalProfile Id="Enzoic-RestApiCredentialCheck">
+          <DisplayName>Validate credentials with Enzoic API</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://api.enzoic.com/credentials</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_EnzoicApiKeyContainer" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_EnzoicSecretKeyContainer" />
+          </CryptographicKeys>            
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email"/>
+            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="email"/>
+            <InputClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
+            <InputClaim ClaimTypeReferenceId="response_format" DefaultValue="1" />
+            <InputClaim ClaimTypeReferenceId="compromised_message" DefaultValue="Bad Credentials" />            
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="enzoicResult" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+        
+        <TechnicalProfile Id="Enzoic-RestApiPasswordCheck">
+          <DisplayName>Validate password with Enzoic API</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://api.enzoic.com/passwords</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_EnzoicApiKeyContainer" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_EnzoicSecretKeyContainer" />
+          </CryptographicKeys>          
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
+            <InputClaim ClaimTypeReferenceId="response_format" DefaultValue="1" />
+            <InputClaim ClaimTypeReferenceId="compromised_message" DefaultValue="Bad Password" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="enzoicResult" />
+          </OutputClaims>          
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+
+        <!-- Change LocalAccountSignUpWithLogonEmail technical profile to support your validation technical profile -->
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
+          </ValidationTechnicalProfiles>
+        </TechnicalProfile>
+       
+        <!-- Change LocalAccountWritePasswordUsingObjectId technical profile to support your validation technical profile -->
+        <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
+          </ValidationTechnicalProfiles>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Local Account SignIn</DisplayName>
+      <TechnicalProfiles>
+         <TechnicalProfile Id="login-NonInteractive">
+          <Metadata>
+            <Item Key="client_id">ProxyIdentityExperienceFrameworkAppId</Item>
+            <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="ProxyIdentityExperienceFrameworkAppId" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
+          </InputClaims>
+        </TechnicalProfile>  
+
+        <TechnicalProfile Id="login-NonInteractive-PasswordChange">
+          <InputClaims>          
+            <InputClaim ClaimTypeReferenceId="oldPassword" PartnerClaimType="password" Required="true" />
+          </InputClaims>
+          <IncludeTechnicalProfile ReferenceId="login-NonInteractive" />
+        </TechnicalProfile>     
+
+      </TechnicalProfiles>
+    </ClaimsProvider>    
+
+    <ClaimsProvider>
+      <DisplayName>Local Account</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="LocalAccountWritePasswordChangeUsingObjectId">
+          <DisplayName>Change password (username)</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" />
+          </InputClaims>
+          <OutputClaims>                           
+            <OutputClaim ClaimTypeReferenceId="oldPassword" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="login-NonInteractive-PasswordChange" />
+            <ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />            
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
+          </ValidationTechnicalProfiles>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+  </ClaimsProviders>
+
+  <UserJourneys>
+
+    <UserJourney Id="PasswordChange">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordChangeUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+    
+  </UserJourneys>
+
+</TrustFrameworkPolicy>
