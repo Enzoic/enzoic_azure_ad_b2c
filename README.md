@@ -184,7 +184,6 @@ Follow these steps to create the necessary Policy Key containers for the Enzoic 
 4.  For **Secret**, enter your Enzoic Secret Key.
 5.  For **Key usage**, select **Encryption**.
 6.  Select **Create**.
-7.  
 
 --- 
 
@@ -195,62 +194,57 @@ To add password validation to the starter SignUpSignIn combined policy you will 
 * Add the new `response_format` and `compromised_message` `ClaimTypes` to the [ClaimsSchema](https://docs.microsoft.com/en-us/azure/active-directory-b2c/claimsschema) section of the [BuildBlocks](https://docs.microsoft.com/en-us/azure/active-directory-b2c/buildingblocks) section of your _TrustFrameworkExtensions.xml_ file.
 
 ```xml
-  <BuildingBlocks>
-    <ClaimsSchema>
-      <ClaimType Id="oldPassword">
-        <DisplayName>Old Password</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Enter your old password</UserHelpText>
-        <UserInputType>Password</UserInputType>
-      </ClaimType>
-      <ClaimType Id="response_format">
-        <DisplayName>Enzoic API Response Format</DisplayName>
-        <DataType>int</DataType>
-      </ClaimType>
-      <ClaimType Id="compromised_message">
-        <DisplayName>Message returned by Enzoic API</DisplayName>
-        <DataType>string</DataType>
-      </ClaimType>
-    </ClaimsSchema>
-  </BuildingBlocks>
+<BuildingBlocks>
+	<ClaimsSchema>
+
+		...
+
+		<ClaimType Id="response_format">
+			<DisplayName>Enzoic API Response Format</DisplayName>
+			<DataType>int</DataType>
+		</ClaimType>
+		<ClaimType Id="compromised_message">
+			<DisplayName>Message returned by Enzoic API</DisplayName>
+			<DataType>string</DataType>
+		</ClaimType>
+	</ClaimsSchema>
+</BuildingBlocks>
 ```
 
 * Add a new `ClaimsProvider` to the [ClaimsProviders](https://docs.microsoft.com/en-us/azure/active-directory-b2c/claimsproviders) section of your _TrustFrameworkExtensions.xml_ file that will contain the Technical Profiles related to querying the Enzoic API.
 
 ```xml
-	<ClaimsProviders>
-		<ClaimsProvider>
-		  <DisplayName>Enzoic</DisplayName>
-		  <TechnicalProfiles>
-			<TechnicalProfile Id="REST-API-EnzoicPasswordCheck">
-				<DisplayName>Validate user password</DisplayName>
-				<Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-				<Metadata>
-					<Item Key="ServiceUrl">https://api.enzoic.com/passwords</Item>
-					<Item Key="AuthenticationType">Basic</Item>
-					<Item Key="SendClaimsIn">QueryString</Item>
-				</Metadata>
-				<CryptographicKeys>
-					<Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_EnzoicApiKeyContainer" />
-					<Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_EnzoicSecretKeyContainer" />
-				</CryptographicKeys>          
-				<InputClaims>
-					<InputClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
-					<InputClaim ClaimTypeReferenceId="response_format" DefaultValue="1" />
-					<InputClaim ClaimTypeReferenceId="compromised_message" DefaultValue="Bad Password" />
-				</InputClaims>
-				<UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-			</TechnicalProfile>
-			  
-        	<!-- Change LocalAccountSignUpWithLogonEmail (defined in TrustFrameworkBase.xml) to use your new technical profile for validation -->
-			<TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
-			  <ValidationTechnicalProfiles>
-				<ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
-			  </ValidationTechnicalProfiles>
-			</TechnicalProfile>			  
-		  </TechnicalProfiles>
-		</ClaimsProvider>		  
-	</ClaimsProviders>
+<ClaimsProvider>
+	<DisplayName>Enzoic</DisplayName>
+	<TechnicalProfiles>
+		<TechnicalProfile Id="Enzoic-RestApiPasswordCheck">
+			<DisplayName>Validate user password</DisplayName>
+			<Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+			<Metadata>
+				<Item Key="ServiceUrl">https://api.enzoic.com/passwords</Item>
+				<Item Key="AuthenticationType">Basic</Item>
+				<Item Key="SendClaimsIn">QueryString</Item>
+			</Metadata>
+			<CryptographicKeys>
+				<Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_EnzoicApiKeyContainer" />
+				<Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_EnzoicSecretKeyContainer" />
+			</CryptographicKeys>          
+			<InputClaims>
+				<InputClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
+				<InputClaim ClaimTypeReferenceId="response_format" DefaultValue="1" />
+				<InputClaim ClaimTypeReferenceId="compromised_message" DefaultValue="Bad Password" />
+			</InputClaims>
+			<UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+		</TechnicalProfile>
+		
+		<!-- Change LocalAccountSignUpWithLogonEmail (defined in TrustFrameworkBase.xml) to use your new technical profile for validation -->
+		<TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+			<ValidationTechnicalProfiles>
+			<ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
+			</ValidationTechnicalProfiles>
+		</TechnicalProfile>			  
+	</TechnicalProfiles>
+</ClaimsProvider>		  
 ```
 
 _If you would prefer to validate full credential sets rather than just passwords check out the `EnzoicRestApiCredentialCheck` technical profile found in the `profiles/LocalAccountsWithEnzoic/TrustFrameworkExtensions.xml` file_
@@ -264,16 +258,22 @@ You should now be able to now upload your updated _TrustFrameworkExtensions.xml_
 ### Adding Enzoic to PasswordReset policy
 This section will continue the walk through by showing how to update the PasswordReset policy to use the Enzoic integration.
 
-* Starting from the previously modified _TrustFrameworkExtensions.xml_ file, we will update another Technical Profile from the Base file to use the Enzoic API as a Validation Technical Profile before saving the new password to Azure AD.
+* Starting from the previously modified _TrustFrameworkExtensions.xml_ file, we will update another Technical Profile in the Enzoic `ClaimProvider`.  This just adds an additional Validation Technical Profile into the Technical Profile as it was defined in the Base file.
 
 ```xml
-        <!-- Change LocalAccountWritePasswordUsingObjectId (defined in TrustFrameworkBase.xml) to use your new technical profile for validation -->
-        <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
-            <ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
-          </ValidationTechnicalProfiles>
-        </TechnicalProfile>
+<ClaimsProvider>
+	<DisplayName>Enzoic</DisplayName>
+	<TechnicalProfiles>
+		
+		...
+		
+		<TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
+			<ValidationTechnicalProfiles>
+			<ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
+			<ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
+			</ValidationTechnicalProfiles>
+		</TechnicalProfile>
+	</TechnicalProfiles>
 
 ```
 
@@ -288,26 +288,26 @@ We finish the walk through by adding Enzoic to the PasswordChange policy.
 <ClaimsProvider>
   <DisplayName>Local Account</DisplayName>
     <TechnicalProfiles>
-	  <TechnicalProfile Id\="LocalAccountWritePasswordChangeUsingObjectId">
-	    <DisplayName>Change password (username)</DisplayName>
-	    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-		<Metadata>
-		  <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-		</Metadata>
-		<InputClaims>
-		  <InputClaim ClaimTypeReferenceId="objectId" />
-		</InputClaims>
-		<OutputClaims>
-		  <OutputClaim ClaimTypeReferenceId="oldPassword" Required="true" />
-		  <OutputClaim ClaimTypeReferenceId="newPassword" Required\="true" />
-		  <OutputClaim ClaimTypeReferenceId="reenterPassword" Required\="true" />
-		</OutputClaims>
-		<ValidationTechnicalProfiles>
-		  <ValidationTechnicalProfile ReferenceId="login-NonInteractive-PasswordChange" />
-		  <ValidationTechnicalProfile ReferenceId="REST-API-EnzoicPasswordCheck" />
-	      <ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
-		</ValidationTechnicalProfiles>
-	  </TechnicalProfile>
+		<TechnicalProfile Id\="LocalAccountWritePasswordChangeUsingObjectId">
+			<DisplayName>Change password (username)</DisplayName>
+			<Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+			<Metadata>
+				<Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+			</Metadata>
+			<InputClaims>
+				<InputClaim ClaimTypeReferenceId="objectId" />
+			</InputClaims>
+			<OutputClaims>
+				<OutputClaim ClaimTypeReferenceId="oldPassword" Required="true" />
+				<OutputClaim ClaimTypeReferenceId="newPassword" Required\="true" />
+				<OutputClaim ClaimTypeReferenceId="reenterPassword" Required\="true" />
+			</OutputClaims>
+			<ValidationTechnicalProfiles>
+				<ValidationTechnicalProfile ReferenceId="login-NonInteractive-PasswordChange" />
+				<ValidationTechnicalProfile ReferenceId="Enzoic-RestApiPasswordCheck" />
+				<ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId" />
+			</ValidationTechnicalProfiles>
+	  	</TechnicalProfile>
     </TechnicalProfiles>
 </ClaimsProvider>		  
 ```

@@ -25,8 +25,7 @@ Follow these steps to create the necessary Policy Key containers for the Enzoic 
 3.  In **Name**, enter `EnzoicSecretKeyContainer`. The prefix `B2C_1A_` might be added automatically.
 4.  For **Secret**, enter your Enzoic Secret Key.
 5.  For **Key usage**, select **Encryption**.
-6.  Select **Create**.
-7.  
+6.  Select **Create**. 
 
 --- 
 
