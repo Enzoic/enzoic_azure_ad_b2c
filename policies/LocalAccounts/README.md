@@ -1,10 +1,11 @@
 # Local account sign-up or sign-in user journey overview
 
+**This file was original found [here](https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/tree/master/LocalAccounts/readme.md)!**
+
 This article gives an overview of the **local account sign-up or sign-in** user journey custom policies. We recommend you to read the [Azure AD B2C custom policy overview](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-overview) before reading this article.
 
 
 You can find the user journey and its orchestration steps in the TrustFrameworkBase.xml file, with the Id "SignUpOrSignIn". Each Orchestration step and its referenced technical profile will be explained in detail in the following series.
-
 
 
 ## Logical Steps

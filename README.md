@@ -121,7 +121,7 @@ Now, grant permissions to the API scope you exposed earlier in the _IdentityExpe
 ## Starter policies
 Once you have all of the prerequisites taken care of you will need to modify the starter policies to reference your environment. These policies will deploy a set of user flows for common use cases such as signup/signin, password reset, and password change. This will provide us with a baseline that we can use to walk through adding the Enzoic integration.
 
-These starter policies are based on the [LocalAccounts policies](https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/tree/master/LocalAccounts) provided in the [Azure AD B2C Custom Policy Starter Pack](https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack). We have made a few small changes to support a password change polic.
+These starter policies are based on the [LocalAccounts policies](https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/tree/master/LocalAccounts/readme.md) provided in the [Azure AD B2C Custom Policy Starter Pack](https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack). We have made a few small changes to support a password change polic.
 
 ### Add your tenant ID to the custom policy files
 1.  In all of the policy files in the `policies/LocalAccounts` directory, replace the string `yourtenant` with the name of your Azure AD B2C tenant.
@@ -131,7 +131,7 @@ These starter policies are based on the [LocalAccounts policies](https://github.
 ### Add application IDs to the custom policy's Extensions file
 Add the application IDs to the extensions file _TrustFrameworkExtensions.xml_.  These are the application IDs you created above for the `IdentityExperienceFrameworkApp` and the `ProxyIdentityExperienceFrameworkApp`.
 
-1.  Open **`policies/LocalAccounts/TrustFrameworkExtensions.xml`** and find the element `<TechnicalProfile Id="login-NonInteractive">`.
+1.  Open `policies/LocalAccounts/TrustFrameworkExtensions.xml` and find the element `<TechnicalProfile Id="login-NonInteractive">`.
 2.  Replace both instances of `IdentityExperienceFrameworkAppId` with the application ID of the IdentityExperienceFramework application that you created earlier.
 3.  Replace both instances of `ProxyIdentityExperienceFrameworkAppId` with the application ID of the ProxyIdentityExperienceFramework application that you created earlier.
 4.  Save the file.
