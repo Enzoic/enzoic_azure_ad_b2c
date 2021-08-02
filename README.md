@@ -53,7 +53,7 @@ Follow these steps to create the necessary encryption and signing keys needed fo
 
 1.  Select **Policy Keys** and then select **Add**.
 2.  For **Options**, choose `Generate`.
-3.  In **Name**, enter `TokenEncryptionKeyContainer`. The prefix `B2C_1A`\_ might be added automatically.
+3.  In **Name**, enter `TokenEncryptionKeyContainer`. The prefix `B2C_1A_` might be added automatically.
 4.  For **Key type**, select **RSA**.
 5.  For **Key usage**, select **Encryption**.
 6.  Select **Create**.
@@ -311,5 +311,6 @@ We finish the walk through by adding Enzoic to the PasswordChange policy.
     </TechnicalProfiles>
 </ClaimsProvider>		  
 ```
+## Other Resources
 
-
+* [Azure AD B2C Community](https://azure-ad-b2c.github.io/azureadb2ccommunity.io/) - This site is a good resource for additional documentation about [Custom Policies](https://azure-ad-b2c.github.io/azureadb2ccommunity.io/docs/custom-policy-concepts/), information about free webinars, videos of past webinars, etc.
