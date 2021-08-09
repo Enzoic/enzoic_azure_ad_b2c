@@ -1,7 +1,9 @@
 # Enzoic API Integrations for Azure AD B2C
 
 ## Introduction
-This repository contains everything necessary to integrate the Enzoic API into an Azure Active Directory B2C configuration.   
+This repository contains everything necessary to integrate the Enzoic API into an Azure Active Directory B2C configuration.   a
+
+![Enzoic Architecture Diagram](images/enzoic-architecture-diagram.png)
 
 ### Requirements
 * You will need an Azure account to host the Azure AD B2C Tenant.
@@ -258,7 +260,7 @@ You should now be able to now upload your updated _TrustFrameworkExtensions.xml_
 ### Adding Enzoic to PasswordReset policy
 This section will continue the walk through by showing how to update the PasswordReset policy to use the Enzoic integration.
 
-* Starting from the previously modified _TrustFrameworkExtensions.xml_ file, we will update another Technical Profile in the Enzoic `ClaimProvider`.  This just adds an additional Validation Technical Profile into the Technical Profile as it was defined in the Base file.
+* Starting from the previously modified _TrustFrameworkExtensions.xml_ file, we will update another Technical Profile in the Enzoic `ClaimsProvider`.  This just adds an additional Validation Technical Profile into the Technical Profile as it was defined in the Base file.
 
 ```xml
 <ClaimsProvider>
