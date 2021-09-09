@@ -1,13 +1,15 @@
 # Enzoic API Integrations for Azure AD B2C
 
 ## Introduction
-This repository contains everything necessary to integrate the Enzoic API into an Azure Active Directory B2C configuration.   a
+This repository contains everything necessary to demonstrate integrating the Enzoic API into an Azure Active Directory B2C configuration to prevent credential stuffing and other password attacks. 
+
+Organizations use Enzoic to enhance password protection in Azure by detecting compromised credentials available to cybercriminals on the dark web. Learn more at [Enzoic](https://www.enzoic.com).
 
 ![Enzoic Architecture Diagram](images/enzoic-architecture-diagram.png)
 
 ### Requirements
 * You will need an Azure account to host the Azure AD B2C Tenant.
-* You will also need Enzoic API Keys.
+* You will also need Enzoic API Keys. Register for a free account up to 2,000 API calls per month at [Enzoic Free Trial](https://www.enzoic.com/free-trial-2/)
 
 ### Azure AD B2C and custom policies
 This assumes that you have some familiarity with Azure Active Directory B2C and more specifically with creating custom policies to implement user flows.  If you are totally new to Azure AD B2C, I would suggest you check out the [Azure Active Directory B2C Documentation](https://docs.microsoft.com/en-us/azure/active-directory-b2c/).
@@ -311,8 +313,21 @@ We finish the walk through by adding Enzoic to the PasswordChange policy.
 			</ValidationTechnicalProfiles>
 	  	</TechnicalProfile>
     </TechnicalProfiles>
-</ClaimsProvider>		  
+</ClaimsProvider>		
 ```
+
+## Production readiness
+This repository demonstrates how Enzoic can be integrated into your Azure AD B2C configuration, but these policies alone may not be suitable for a production deployment. 
+
+There are several potential problems with the policies presented in this demonstration:
+* First of all, with this configuration Azure AD B2C is sending your credential information to the Enzoic API as plaintext. We generally cannot recommend this practice, even when sending data to a trusted 3rd party such as Enzoic. We always recommend using our partial hash-based calls. Credentials are first securely hashed and then only a few characters are sent over the wire.  The easiest way to get started is to use one of our Client Libraries.
+* While Azure AD B2C provides a great deal of flexibility and extensibility with its custom policies, there are inevitably going to be situations where a greater deal of customization is required. For instance, if for some reason Azure AD B2C were unable to contact the Enzoic API, the user would not be able to successfully create or change a password. While we endeavour to make sure that the Enzoic API is accessible 24/7, the possibility for problems contacting the API exist.
+* Your organization may require custom logging and/or metrics related to your use of the Enzoic API or of Azure AD B2C in general.
+
+The easiest approach to solving these issues would be to insert a custom API into the process between Azure AD B2C and the Enzoic API (as shown below). With the current state of Serverless computing, a simple proxy API that uses the Enzoic client libraries to hash and submit credentials to the Enzoic API can be created and deployed in moments without the need for managing servers or complicated infrastructure. We have simple starter projects available in several languages to help you in this process if needed. You can contact us [here](enzoic.com/contact-us/).
+
+![Enzoic Architecture Diagram](images/enzoic-architecture-diagram-extended.png)
+
 ## Other Resources
 
 * [Azure AD B2C Community](https://azure-ad-b2c.github.io/azureadb2ccommunity.io/) - This site is a good resource for additional documentation about [Custom Policies](https://azure-ad-b2c.github.io/azureadb2ccommunity.io/docs/custom-policy-concepts/), information about free webinars, videos of past webinars, etc.
